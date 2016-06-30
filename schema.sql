@@ -1,6 +1,13 @@
- DROP TABLE my_contacts;
+SHOW DATABASES;
+SHOW CREATE DATABASE doughnut;
+
+SHOW TABLES;
+
+
+DROP TABLE IF EXISTS my_contacts;
 
 CREATE TABLE my_contacts(
+	contact_id INT NOT NULL,
 	last_name VARCHAR(30) NOT NULL,
 	first_name VARCHAR(20) NOT NULL,
 	email VARCHAR(50) NOT NULL,
@@ -10,8 +17,20 @@ CREATE TABLE my_contacts(
 	profession VARCHAR(50),
 	status VARCHAR(20) NOT NULL,
 	interests VARCHAR(100),
-	seeking VARCHAR(100)
+	seeking VARCHAR(100),
+	PRIMARY KEY (contact_id)
 );
+
+SHOW CREATE TABLE my_contacts;
+
+DESC my_contacts;
+
+SHOW COLUMNS FROM my_contacts;
+SHOW INDEX FROM my_contacts;
+
+SHOW WARNINGS;
+
+/*----------------------------------------------------------------*/
 
 INSERT INTO my_contacts
 (last_name,first_name,email,gender,birthday,age,profession,
@@ -25,9 +44,9 @@ VALUES
 
 /*Escape ' by \ or another '*/
 INSERT INTO my_contacts
-(first_name,last_name,email,status)
+(first_name,last_name,email,status,age)
 VALUES
-('hamid','nourhani','hamid@gmail.com','married'),
+('hamid','nourhani','hamid@gmail.com','married',19),
 ('ali''REZA','hamdiPour','ali@gmail.com','single',20),
 ('hamid\'REZA','alipour','hamedreza@gmail.com','single',36);
 
@@ -66,6 +85,33 @@ SELECT first_name FROM my_contacts WHERE first_name NOT IN ('hamid','hamed');
 
 
 
+/* DELETe */
+DELETE FROM my_contacts WHERE first_name='hamed';
 
 
+/* UPDATE */
 
+UPDATE my_contacts SET first_name='hamid', last_name='nour' WHERE first_name='hamid';
+UPDATE my_contacts SET age = age + 7 WHERE first_name IN ('hamed','hamid');
+
+/*
+************************************************************************
+HOw you are using your data will affect how you setup database and tables
+************************************************************************
+
+---------------       MAKING YOUR TABLES NORMAL    ---------------------
+
+****  4 things most consider when designing database tables *******
+
+1- pick your thing, the one you want your table to describe.(what is the main thing you want your table to be about)
+2- make a list of information you need to know about your one thing when you are using the table.(how will you use this table)
+3- using the list break down the information about your thing in the pieces you can use for organizing your table.(how can you most easily query this table)
+
+4- data must be atomic : must be divided sufficently to pices(columns) 
+4-a : a column with atomic data can not have several values of same type in one column.
+4-b : a table with atomic data can not have mutliple columns of same data.
+
+5-a: each row of table must contain atomic values
+5-b: each row of data must have a unique identifer known as a primary key.
+*********************************************************************************************
+*/
