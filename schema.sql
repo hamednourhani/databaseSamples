@@ -7,7 +7,7 @@ SHOW TABLES;
 DROP TABLE IF EXISTS my_contacts;
 
 CREATE TABLE my_contacts(
-	contact_id INT NOT NULL,
+	contact_id INT NOT NULL AUTO_INCREMENT,
 	last_name VARCHAR(30) NOT NULL,
 	first_name VARCHAR(20) NOT NULL,
 	email VARCHAR(50) NOT NULL,
