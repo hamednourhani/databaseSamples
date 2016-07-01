@@ -21,6 +21,17 @@ CREATE TABLE my_contacts(
 	PRIMARY KEY (contact_id)
 );
 
+DROP TABLE IF EXISTS my_interests;
+
+CREATE TABLE my_interests(
+	interest_id INT(5) NOT NULL PRIMARY KEY,
+	interest_name VARCHAR(20) NOT NULL,
+	contact_id INT NOT NULL,
+	CONSTRAINT my_contacts_contact_id_fk
+	FOREIGN KEY (contact_id)
+	REFERENCES my_contacts (contact_id)
+)
+
 SHOW CREATE TABLE my_contacts;
 
 DESC my_contacts;
@@ -84,6 +95,14 @@ SELECT first_name FROM my_contacts WHERE first_name IN ('hamid','hamed');
 SELECT first_name FROM my_contacts WHERE first_name NOT IN ('hamid','hamed');
 
 
+/* working wtith strings */
+SELECT RIGHT(first_name,3) FROM my_contacts WHERE first_name='hamed'
+SELECT SUBSTRING_INDEX(first_name,',',3) FROM my_contacts WHERE first_name='hamed';
+SELECT SUBSTRING(first_name,5,3) FROM my_contacts WHERE first_name='hamed';
+SELECT UPPER(first_name) FROM my_contacts WHERE first_name='hamed';
+SELECT REVERSE(last_name) FROM my_contacts WHERE first_name='hamed';
+SELECT LTRIM(last_name) FROM my_contacts WHERE first_name='hamed';
+SELECT LENGTH(last_name) FROM my_contacts WHERE first_name='hamed';
 
 /* DELETe */
 DELETE FROM my_contacts WHERE first_name='hamed';
@@ -93,6 +112,8 @@ DELETE FROM my_contacts WHERE first_name='hamed';
 
 UPDATE my_contacts SET first_name='hamid', last_name='nour' WHERE first_name='hamid';
 UPDATE my_contacts SET age = age + 7 WHERE first_name IN ('hamed','hamid');
+
+UPDATE my_contacts SET last_name = SUBSTRING(first_name,5,3) WHERE first_name='hamid';
 
 /*
 ************************************************************************
@@ -115,3 +136,124 @@ HOw you are using your data will affect how you setup database and tables
 5-b: each row of data must have a unique identifer known as a primary key.
 *********************************************************************************************
 */
+
+
+
+/* adding some columns to exiting table */
+ALTER TABLE my_contacts ADD COLUMN contact_id INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (contact_id);
+
+ALTER TABLE my_contacts ADD COLUMN contact_info VARCHAR(20) AFTER contact_id;
+ALTER TABLE my_contacts RENAME TO contacts_list;
+ALTER TABLE my_contacts CHANGE contact_info TO INT NOT NULL ;
+ALTER TABLE my_contacts DROP COLUMN contact_info;
+
+
+/* order and grouping */
+UPDATE my_contacts SET first_name_length =
+	CASE 
+		WHEN first_name = 'hamid' AND last_name='nourhani'
+			THEN LENGTH(first_name)
+		WHEN last_name = 'nourhani'
+			THEN LENGTH(last_name)
+		ELSE 0
+		END; 
+
+UPDATE my_contacts SET first_name_length =
+	CASE 
+		WHEN first_name = 'hamid' AND last_name='nourhani'
+			THEN LENGTH(first_name)
+		WHEN last_name = 'nourhani'
+			THEN LENGTH(last_name)
+		ELSE 0
+		END WHERE age < 25; 
+
+SELECT first_name FROM my_contacts WHERE first_name IS NOT NULL ORDER BY first_name;
+SELECT first_name FROM my_contacts ORDER BY age DESC, first_name ASC, last_name;
+
+/* ------------- Grouping -------------------*/
+SELECT SUM(age) FROM my_contacts WHERE status='married';
+SELECT first_name ,SUM(age) FROM my_contacts GROUP BY first_name ORDER BY SUM(age) DESC;
+SELECT first_name ,AVG(age) FROM my_contacts GROUP BY first_name ORDER BY AVG(age) ASC , first_name DESC;
+SELECT first_name ,MAX(age) FROM my_contacts GROUP BY first_name ORDER BY first_name DESC;
+SELECT first_name ,MIN(age) FROM my_contacts GROUP BY first_name ORDER BY first_name ASC;
+SELECT status,COUNT(status) FROM my_contacts GROUP BY status;
+SELECT birthday,COUNT(DISTINCT birthday ) FROM my_contacts GROUP BY birthday;
+
+/* --------------- LIMIT ----------------------------*/
+SELECT status,COUNT(status) FROM my_contacts GROUP BY status ORDER BY status DESC LIMIT 1;
+SELECT status,COUNT(status) FROM my_contacts GROUP BY status ORDER BY status DESC LIMIT 0,1;
+
+
+/*-----SELECT from one table and INSERT to another in same TIME -----------*/
+
+/* FIRST WAY*/
+DROP TABLE IF EXISTS profession;
+CREATE TABLE profession(
+	id INT(5) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	profession VARCHAR(20)
+);
+
+INSERT INTO profession (profession)
+SELECT profession FROM my_contacts
+GROUP BY profession
+ORDER BY profession;
+
+/*SECOND WAY */
+DROP TABLE IF EXISTS profession;
+
+CREATE TABLE profession AS
+SELECT profession FROM my_contacts
+GROUP BY profession
+ORDER BY profession;
+
+ALTER TABLE profession
+ADD COLUMN id INT(5) NOT NULL AUTO_INCREMENT FIRST,
+ADD PRIMARY KEY (id);
+
+/* THIRD WAY */
+DROP TABLE IF EXISTS profession;
+
+CREATE TABLE profession(
+	id INT(5) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	profession VARCHAR(20)
+)
+AS
+SELECT profession FROM my_contacts
+GROUP BY profession
+ORDER BY profession;
+
+
+
+/*-------------------------- JOINIG TABLES ---------------------*/
+
+/* CROSS JOIN */
+SELECT mc.first_name ,p.profession
+FROM my_contacts AS mc
+	CROSS JOIN 
+	profession AS p;
+
+SELECT my_contacts.first_name, profession.profession
+FROM my_contacts,profession;
+
+/* Inner Join */
+/* inner join is a cross join with some conditoin*/
+SELECT mc.first_name,mc.last_name,p.profession
+FROM my_contacts AS mc
+	INNER JOIN 
+	profession AS p
+	ON 
+	mc.contact_id = p.id;
+
+SELECT mc.first_name,mc.last_name,p.profession
+FROM my_contacts AS mc
+	INNER JOIN 
+	profession AS p
+	ON 
+	mc.contact_id <> p.id;
+
+/* WHEN To table have same column name .(for example one for PRIMARY and other for FOREGEN)*/
+SELECT mc.first_name,mc.last_name,p.profession
+FROM my_contacts AS mc
+	NATURAL JOIN 
+	profession AS p;
+	
