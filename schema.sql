@@ -251,9 +251,63 @@ FROM my_contacts AS mc
 	ON 
 	mc.contact_id <> p.id;
 
+/* Outer Join */
+SELECT mc.first_name,mc.last_name,p.profession
+FROM my_contacts AS mc
+	LEFT OUTER JOIN 
+	profession AS p
+	ON mc.profession = p.profession;
+
+SELECT mc.first_name,mc.last_name,p.profession
+FROM my_contacts AS mc
+	RIGHT OUTER JOIN 
+	profession AS p
+	ON mc.profession = p.profession;
+
 /* WHEN To table have same column name .(for example one for PRIMARY and other for FOREGEN)*/
 SELECT mc.first_name,mc.last_name,p.profession
 FROM my_contacts AS mc
 	NATURAL JOIN 
 	profession AS p;
-	
+
+/* SUB QUERY */
+SELECT mc.first_name,p.profession
+ From my_contacts AS mc
+ INNER JOIN profession AS p
+ WHERE p.profession IN (SELECT profession FROM my_contacts);
+
+
+ SELECT mc.first_name,
+ (SELECT profession FROM profession) AS profession
+ FROM my_contacts AS mc;
+
+ /* UNION */
+ SELECT profession FROM my_contacts
+ UNION
+ SELECT profession FROM profession;
+
+
+SELECT profession FROM my_contacts
+ UNION ALL
+ SELECT profession FROM profession; 
+
+/* INTERSECT & EXCEPT */
+ SELECT profession FROM my_contacts
+ INTERSECT
+ SELECT profession FROM profession; 
+
+ SELECT profession FROM my_contacts
+ EXCEPT
+ SELECT profession FROM profession; 
+
+
+ /* ---------------- VIEWS -----------------------*/
+
+CREATE VIEW my_professions AS
+SELECT mc.first_name,mc.last_name,p.profession
+FROM my_contacts AS mc
+	INNER JOIN 
+	profession AS p
+	ON mc.profession = p.profession;
+
+SELECT * FROM my_professions;
